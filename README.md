@@ -1,99 +1,199 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Nombre: David Padilla
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# NRC: 1406
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Backend Proyecto PYMEs
 
-## Description
+## Descripción
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Este proyecto backend está desarrollado con NestJS y TypeORM, y utiliza MySQL como sistema de gestión de bases de datos. Proporciona una API REST para gestionar las funcionalidades de la aplicación (usuarios, productos, inventario, pedidos, etc.).
 
-## Project setup
+## Instalación
 
-```bash
-$ npm install
-```
+1. **Clonar el repositorio**
 
-## Compile and run the project
+   ```bash
+   git clone https://github.com/dpadilla883/Backend_Padilla_David.git
+   ```
+   ```bash
+   cd Backend_Padilla_David
+   ```
+2. **Instalar dependencias**
 
-```bash
-# development
-$ npm run start
+   ```bash
+   npm install
+   ```
+   ```bash
+   npm install -g @nestjs/cli
+   ```
+   ```bash
+   npm install --save @nestjs/typeorm typeorm mysql2
+   ```
 
-# watch mode
-$ npm run start:dev
+3. **Configurar la Base de Datos**
 
-# production mode
-$ npm run start:prod
-```
+   En MySQL Workbench vamos a crear una base de datos con el nombre
+   gestion_proyecto con sus respectivas tablas y atributos.
 
-## Run tests
+   -- Crear la base de datos gestion_proyecto
+DROP DATABASE IF EXISTS gestion_proyecto;
+CREATE DATABASE gestion_proyecto;
+USE gestion_proyecto;
 
-```bash
-# unit tests
-$ npm run test
+-- Tabla: categoria
+CREATE TABLE categoria (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT
+);
 
-# e2e tests
-$ npm run test:e2e
+-- Tabla: empresa
+CREATE TABLE empresa (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    direccion TEXT,
+    telefono VARCHAR(50),
+    email VARCHAR(100) UNIQUE
+);
 
-# test coverage
-$ npm run test:cov
-```
+-- Tabla: proveedor
+CREATE TABLE proveedor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    contacto VARCHAR(255),
+    telefono VARCHAR(50),
+    email VARCHAR(100) UNIQUE,
+    empresa_id INT,
+    FOREIGN KEY (empresa_id) REFERENCES empresa(id) ON DELETE SET NULL
+);
 
-## Deployment
+-- Tabla: producto
+CREATE TABLE producto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    precio DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL,
+    categoria_id INT,
+    proveedor_id INT,
+    FOREIGN KEY (categoria_id) REFERENCES categoria(id) ON DELETE SET NULL,
+    FOREIGN KEY (proveedor_id) REFERENCES proveedor(id) ON DELETE SET NULL
+);
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+-- Tabla: inventario
+CREATE TABLE inventario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT,
+    cantidad INT NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (producto_id) REFERENCES producto(id) ON DELETE CASCADE
+);
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+-- Tabla: movimiento_inventario
+CREATE TABLE movimiento_inventario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    inventario_id INT,
+    tipo_movimiento ENUM('entrada', 'salida') NOT NULL,
+    cantidad INT NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (inventario_id) REFERENCES inventario(id) ON DELETE CASCADE
+);
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+-- Tabla: pedido
+CREATE TABLE pedido (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha_pedido DATE NOT NULL,
+    estado ENUM('pendiente', 'procesado', 'cancelado') NOT NULL,
+    proveedor_id INT,
+    FOREIGN KEY (proveedor_id) REFERENCES proveedor(id) ON DELETE SET NULL
+);
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+-- Tabla: detalle_pedido
+CREATE TABLE detalle_pedido (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pedido_id INT,
+    producto_id INT,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (pedido_id) REFERENCES pedido(id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_id) REFERENCES producto(id) ON DELETE CASCADE
+);
 
-## Resources
+-- Tabla: alerta_stock
+CREATE TABLE alerta_stock (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT,
+    cantidad_minima INT NOT NULL,
+    notificado BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (producto_id) REFERENCES producto(id) ON DELETE CASCADE
+);
 
-Check out a few resources that may come in handy when working with NestJS:
+-- Tabla: usuario
+CREATE TABLE usuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    contrasena VARCHAR(255) NOT NULL
+);
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+-- Tabla: rol
+CREATE TABLE rol (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL UNIQUE
+);
 
-## Support
+-- Tabla: usuario_rol (relación entre usuarios y roles)
+CREATE TABLE usuario_rol (
+    usuario_id INT,
+    rol_id INT,
+    PRIMARY KEY (usuario_id, rol_id),
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (rol_id) REFERENCES rol(id) ON DELETE CASCADE
+);
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+-- Tabla: reportes
+CREATE TABLE reportes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    fecha_generacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+5. **Iniciar el servidor**
 
-## License
+   Para desarrollo:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+   ```bash
+   npm run start:dev
+   ```
+
+   Para producción:
+
+   ```bash
+   npm run start:prod
+   ```
+
+   El servidor se ejecutará generalmente en `http://localhost:3000`.
+
+## Uso
+
+- La API expone múltiples endpoints, por ejemplo:
+  - **Autenticación:**  
+    - `POST /auth/register` para registrar un nuevo usuario.
+    - `POST /auth/login` para iniciar sesión.
+  - **Usuarios:**  
+    - `GET /users` para obtener la lista de usuarios.
+    - `POST /users`, `PUT /users/:id`, `DELETE /users/:id` para crear, actualizar y eliminar usuarios.
+  - **Productos, Inventario, Pedidos, etc.:**  
+    - Consulta la documentación de endpoints o los controladores correspondientes.
+
+- Para el backend se puede probar la API usando Postman.
+
+## Requisitos Previos
+
+- [Node.js](https://nodejs.org/) 
+- [npm](https://www.npmjs.com/)
+- [MySQL Server](https://www.mysql.com/) 
+- [Git](https://git-scm.com/)
+  
