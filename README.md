@@ -39,7 +39,7 @@ Este proyecto backend está desarrollado con NestJS y TypeORM, y utiliza MySQL c
 DROP DATABASE IF EXISTS gestion_proyecto;
 CREATE DATABASE gestion_proyecto;
 USE gestion_proyecto;
-```
+
 -- Tabla: categoria
 CREATE TABLE categoria (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -158,7 +158,7 @@ CREATE TABLE reportes (
     descripcion TEXT,
     fecha_generacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
+```
 
 5. **Iniciar el servidor**
 
