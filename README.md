@@ -21,9 +21,6 @@ Este proyecto backend está desarrollado con NestJS y TypeORM, y utiliza MySQL c
 2. **Instalar dependencias**
 
    ```bash
-   npm install
-   ```
-   ```bash
    npm install -g @nestjs/cli
    ```
    ```bash
