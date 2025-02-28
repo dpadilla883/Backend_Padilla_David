@@ -34,12 +34,12 @@ Este proyecto backend está desarrollado con NestJS y TypeORM, y utiliza MySQL c
 
    En MySQL Workbench vamos a crear una base de datos con el nombre
    gestion_proyecto con sus respectivas tablas y atributos.
-
+```bash
    -- Crear la base de datos gestion_proyecto
 DROP DATABASE IF EXISTS gestion_proyecto;
 CREATE DATABASE gestion_proyecto;
 USE gestion_proyecto;
-
+```
 -- Tabla: categoria
 CREATE TABLE categoria (
     id INT AUTO_INCREMENT PRIMARY KEY,
